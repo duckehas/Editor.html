@@ -1,182 +1,1291 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Ronix Monaco Editor with Sleek Tabs</title>
+  <meta charset="utf-8" />
+  <title>Advanced Custom Code Editor with Enhanced Background & Colors</title>
   <style>
+
+
+
+
+      #customBtn {
+    padding: 6px 16px;
+    background: linear-gradient(45deg, #4a90e2, #357ABD);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(53, 122, 189, 0.5);
+    transition: background 0.3s ease;
+  }
+  #customBtn:hover {
+    background: linear-gradient(45deg, #357ABD, #4a90e2);
+    box-shadow: 0 3px 7px rgba(53, 122, 189, 0.7);
+  }
+
+    /* Smaller custom button styling */
+#customBtn {
+  padding: 6px 16px;
+  background: linear-gradient(45deg, #4a90e2, #357ABD);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(53, 122, 189, 0.5);
+  transition: background 0.3s ease;
+}
+#customBtn:hover {
+  background: linear-gradient(45deg, #357ABD, #4a90e2);
+  box-shadow: 0 3px 7px rgba(53, 122, 189, 0.7);
+}
+
     body {
       margin: 0;
-      font-family: 'Fira Code', monospace;
-      background: #282A36;
-      color: #f8f8f2;
+      padding: 0;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    #tabs {
-      display: flex;
-      align-items: center;
-      padding: 5px 10px;
-      background: #21222C;
-      border-bottom: 1px solid #44475A;
-      overflow-x: auto;
+    select {
+      font-size: 16px;
+      padding: 8px 12px;
     }
 
-    .tab {
+    /* Popup panel styles */
+    #uploadPanel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 1000;
+      width: 300px;
+      text-align: center;
+    }
+
+    #uploadPanel input[type="file"] {
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    #uploadPanel button {
+      margin-top: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 4px;
+    }
+
+    /* Optional overlay behind panel */
+    #overlay {
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      z-index: 900;
+    }
+
+
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #0d0d12, #000);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #d0d7ff;
+  font-family: 'Segoe UI', sans-serif;
+  z-index: 9999;
+}
+
+.pulse-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4da6ff;
+  box-shadow: 0 0 8px #4da6ff88;
+  animation: pulse 1.2s infinite ease-in-out;
+  margin-bottom: 20px;
+}
+
+.loading-text {
+  font-size: 16px;
+  text-align: center;
+  color: #b0bfff;
+  letter-spacing: 0.5px;
+}
+
+.loading-text strong {
+  color: #ffffff;
+}
+
+.loading-text span {
+  color: #77caff;
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 8px #4da6ff88;
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    box-shadow: 0 0 20px #4da6ffcc;
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px #4da6ff88;
+    opacity: 1;
+  }
+}
+
+    
+
+    #controlsContainer {
+      margin-left: auto;
       display: flex;
       align-items: center;
-      padding: 6px 14px;
-      margin-right: 5px;
-      background: #33344A;
-      border-radius: 10px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    #bgSelector, #colorSelector, #colorModeToggle {
+      background: #1E1E1E;
+      color: white;
+      border: 1px solid #444;
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 14px;
       cursor: pointer;
       user-select: none;
-      transition: background 0.2s;
-      white-space: nowrap;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      flex-shrink: 0;
+    }
+    #bgSelector:hover, #colorSelector:hover,
+    #bgSelector:focus, #colorSelector:focus,
+    #colorModeToggle:hover, #colorModeToggle:focus {
+      border-color: var(--tab-active-color, #007ACC);
+      box-shadow: 0 0 10px var(--tab-active-color, #007ACC);
+      outline: none;
     }
 
-    .tab.active {
-      background: #44475A;
-      font-weight: bold;
+    #bgSelector {
+      width: 160px;
+    }
+    #colorSelector {
+      width: 40px;
+      padding: 0;
+      height: 32px;
+      border-radius: 5px;
+      filter: drop-shadow(0 0 4px var(--tab-active-color, #007ACC));
+      transition: filter 0.3s ease;
+    }
+    #colorModeToggle {
+      width: 160px;
+      text-align: center;
+      user-select: none;
     }
 
-    .tab:hover {
-      background: #3B3C4E;
+    #container {
+      position: absolute;
+      top: 42px; left: 0; right: 0; bottom: 0;
+      z-index: 2;
+      transition: margin-right 0.3s ease;
     }
 
-    .tab .close {
-      margin-left: 8px;
-      font-weight: bold;
-      color: #33344A; /* matches tab background */
+    /* Transparent Monaco editor */
+    .monaco-editor,
+    .monaco-editor .margin,
+    .monaco-editor .glyph-margin,
+    .monaco-editor-background,
+    .monaco-editor .lines-content {
+      background: transparent !important;
+      transition: color 0.5s ease;
+    }
+
+    /* Sliding workspace styles */
+    #workspaceToggleBtn {
+      padding: 6px 10px;
+      background: #1E1E1E;
+      border: 1px solid #444;
+      border-radius: 5px;
+      color: white;
       cursor: pointer;
-      transition: color 0.2s;
+      font-size: 14px;
+      user-select: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
     }
 
-    .tab .close:hover {
-      color: #ff5555; /* subtle red on hover */
+    #workspaceToggleBtn:hover, #workspaceToggleBtn:focus {
+      border-color: var(--tab-active-color, #007ACC);
+      box-shadow: 0 0 10px var(--tab-active-color, #007ACC);
+      outline: none;
     }
 
-    #addTab {
-      padding: 6px 12px;
+    #workspace {
+      position: fixed;
+      top: 42px; /* below tab bar */
+      right: 0;
+      width: 350px;
+      height: calc(100% - 42px);
+      background-color: #252526;
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.7);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      color: white;
+      font-family: monospace;
+      padding: 12px;
+    }
+
+    #workspace.open {
+      transform: translateX(0);
+    }
+
+    #workspaceHeader {
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 6px;
+      user-select: none;
+    }
+
+    #fileName {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    #workspaceContent {
+      flex: 1;
+      background-color: #1E1E1E;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 12px;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+      background-color: #1E1E1E;
+      font-family: 'Segoe UI', sans-serif;
+      transition: background-color 0.5s ease;
+    }
+
+    #bgCanvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+      will-change: transform;
+    }
+
+   :root {
+  --tab-bg: #252526;
+  --tab-hover-bg: #333;
+  --tab-active-color: #007ACC;
+  --tab-color: #AAA;
+  --tab-hover-color: #EEE;
+  --close-btn-color: #777;
+  --close-btn-hover-color: #e55353;
+}
+
+#tabBar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 42px;
+
+  background-color: rgba(37, 37, 38, 0.6); /* semi-transparent */
+  border-bottom: 1px solid #3C3C3C;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 0 12px;
+
+  overflow-x: auto;
+  scroll-behavior: smooth;
+
+  user-select: none;
+  font-weight: 600;
+
+  z-index: 3;
+
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+}
+
+
+/* Webkit scrollbar for better look */
+#tabBar::-webkit-scrollbar {
+  height: 6px;
+}
+#tabBar::-webkit-scrollbar-track {
+  background: transparent;
+}
+#tabBar::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 3px;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+
+  color: var(--tab-color);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08); /* subtle white outline */
+  border-radius: 4px;
+
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  outline-offset: 2px;
+  transition: 
+    color 0.3s ease,
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+
+    .tab {
+  /* existing styles... */
+  transition: 
+    color 0.4s ease,
+    background-color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+/* Also add transition for the underline (::after) */
+.tab::after {
+  transition: 
+    background-color 0.4s ease,
+    transform 0.3s ease;
+}
+
+}
+
+
+
+/* File icon style */
+.tab .file-icon {
+  width: 16px;
+  height: 16px;
+  fill: var(--tab-color);
+  flex-shrink: 0;
+  transition: fill 0.3s ease;
+}
+
+.tab:hover {
+  color: var(--tab-hover-color);
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.tab.active .file-icon {
+  fill: var(--tab-active-color);
+}
+
+/* Persistent underline with subtle white border */
+.tab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  width: 60%;
+  height: 2.5px;
+
+  background-color: var(--tab-color);
+  border-radius: 2px 2px 0 0;
+
+  box-shadow: inset 0 -1.5px 0 0 #fff;
+
+  transform-origin: center;
+  transform: scaleX(1);
+  transition: background-color 0.3s ease;
+}
+
+.tab:hover {
+  color: var(--tab-hover-color);
+}
+
+.tab:hover::after {
+  background-color: var(--tab-hover-color);
+}
+
+.tab.active {
+  color: #ffffff; /* white text color */
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.tab.active::after {
+  background-color: var(--tab-active-color);
+}
+
+/* Close button */
+.tab .close-btn {
+  opacity: 0;
+  pointer-events: none;
+
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--close-btn-color);
+
+  cursor: pointer;
+  user-select: none;
+
+  padding: 0 6px;
+  border-radius: 3px;
+
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.tab:hover .close-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tab .close-btn:hover {
+  color: var(--close-btn-hover-color);
+}
+
+/* Focus styles */
+.tab:focus {
+  outline: none;
+}
+
+/* Add Tab Button */
+#addTabBtn {
+  flex-shrink: 0;
+
+  padding: 0 12px;
+  font-size: 24px;
+  line-height: 1;
+
+  color: var(--tab-color);
+  background: transparent;
+  border: none;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition: color 0.25s ease;
+}
+
+
+
+#addTabBtn:hover,
+#addTabBtn:focus-visible {
+  color: var(--tab-active-color);
+  outline: none;
+}
+
+
+
+    #controlsContainer {
       margin-left: auto;
-      background: #282A36; /* same as editor background */
-      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    #bgSelector, #colorSelector, #colorModeToggle {
+      background: #1E1E1E;
+      color: white;
+      border: 1px solid #444;
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 14px;
       cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s, color 0.2s;
-      color: #f8f8f2;
+      user-select: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      flex-shrink: 0;
+    }
+    #bgSelector:hover, #colorSelector:hover,
+    #bgSelector:focus, #colorSelector:focus,
+    #colorModeToggle:hover, #colorModeToggle:focus {
+      border-color: var(--tab-active-color, #007ACC);
+      box-shadow: 0 0 10px var(--tab-active-color, #007ACC);
+      outline: none;
     }
 
-    #addTab:hover {
-      background: #3B3C4E;
+    #bgSelector {
+      width: 160px;
+    }
+    #colorSelector {
+      width: 40px;
+      padding: 0;
+      height: 32px;
+      border-radius: 5px;
+      filter: drop-shadow(0 0 4px var(--tab-active-color, #007ACC));
+      transition: filter 0.3s ease;
+    }
+    #colorModeToggle {
+      width: 160px;
+      text-align: center;
+      user-select: none;
     }
 
-    #editor {
-      width: 100%;
-      height: calc(100vh - 50px);
+    #container {
+      position: absolute;
+      top: 42px; left: 0; right: 0; bottom: 0;
+      z-index: 2;
     }
+
+    /* Transparent Monaco editor */
+    .monaco-editor,
+    .monaco-editor .margin,
+    .monaco-editor .glyph-margin,
+    .monaco-editor-background,
+    .monaco-editor .lines-content {
+      background: transparent !important;
+      transition: color 0.5s ease;
+    }
+
+     #settingsPage {
+    display: none;
+    max-width: 400px;
+    margin: 2rem auto 0 auto;
+    background: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  /* Tab header style */
+  .tab-header {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 1rem;
+    cursor: default;
+  }
+  .tab-header > div {
+    flex: 1;
+    padding: 0.5rem 0;
+    text-align: center;
+    font-weight: 600;
+    color: #1d4ed8;
+    border-bottom: 2px solid #1d4ed8;
+  }
+
+  /* Login/Create buttons */
+  #btn-login, #btn-create {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #btn-login {
+    margin-right: 0.5rem;
+    background: #1d4ed8;
+    color: #fff;
+  }
+  #btn-create {
+    margin-left: 0.5rem;
+    background: #e0e7ff;
+    color: #1d4ed8;
+  }
+
+  /* Form inputs */
+  form label {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+  form input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+
+  /* Submit button */
+  form button[type="submit"] {
+    width: 100%;
+    padding: 0.6rem;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #1d4ed8;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  #form-message {
+    margin-top: 1rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+
+
+
+  
+    
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
 </head>
 <body>
+  <canvas id="bgCanvas"></canvas>
 
-<div id="tabs"></div>
-<div id="editor"></div>
+  <div id="tabBar">
+    <!-- tabs inserted dynamically -->
+    <button id="addTabBtn" title="Add new tab">+</button>
+    <div id="controlsContainer">
+      <select id="bgSelector" title="Select background animation">
+        <option value="advanced">Nebula Glow</option>
+        <option value="dotsLines">Dots & Lines Enhanced</option>
+        <option value="matrix">Matrix Rain</option>
+        <option value="wave">Sine Wave Glow</option>
+        <option value="starsTwinkle">Twinkling Stars</option>
+        <option value="purpleParticles">Purple Particles</option>
+        <option value="expandingCircles">Expanding Circles</option>
+        <option value="Engine6.0 Ai">Engine6.0 Ai(comming soon)</option>
+      </select>
+  <button id="customBtn">Upload Custom Background</button>
+  <input type="file" id="audioUpload" accept="audio/mp3,audio/*" style="display:none" />
 
-<script>
-require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }});
-require(['vs/editor/editor.main'], function () {
+  <div id="mainContent">
+    <button id="openEditorBtn">Open Tabbed Editor</button>
+  </div>
 
-  monaco.editor.defineTheme('ronix', {
-    base: 'vs-dark',
-    inherit: true,
-    rules: [
-      { token: 'keyword', foreground: 'FF79C6', fontStyle: 'bold' },
-      { token: 'comment', foreground: '6272A4', fontStyle: 'italic' },
-      { token: 'string', foreground: 'F1FA8C' },
-      { token: 'number', foreground: 'BD93F9' },
-      { token: 'identifier', foreground: '50FA7B' }
-    ],
-    colors: {
-      'editor.background': '#282A36',
-      'editorLineNumber.foreground': '#6272A4',
-      'editorCursor.foreground': '#FF79C6',
-      'editor.selectionBackground': '#44475A'
-    }
-  });
+>
 
-  let files = {
-    'main.js': "console.log('Hello from main.js');",
-    'utils.js': "export function add(a, b) { return a + b; }"
-  };
-  let currentFile = Object.keys(files)[0];
+      <input type="file" id="bgUpload" accept="image/*" style="display: none;">
 
-  const tabsContainer = document.getElementById('tabs');
+      <input id="colorSelector" type="color" value="#007ACC" title="Pick a color" />
 
-  const editor = monaco.editor.create(document.getElementById('editor'), {
-    value: files[currentFile],
-    language: 'javascript',
-    theme: 'ronix',
-    fontFamily: 'Fira Code, monospace',
-    fontSize: 14,
-    minimap: { enabled: false },
-    lineNumbers: 'on',
-    roundedSelection: true,
-    scrollBeyondLastLine: false,
-    automaticLayout: true
-  });
+      <button id="colorModeToggle" title="Toggle color mode">
+        Color Mode: Background
+      </button>
+    </div>
+  </div>
 
-  function createTab(filename) {
-    const tab = document.createElement('div');
-    tab.className = 'tab';
-    tab.dataset.file = filename;
-    tab.textContent = filename;
+  <div id="loadingScreen">
+  <div class="pulse-dot"></div>
+  <div class="loading-text">Loading <strong>Engine6.0</strong> · <span>Pulse Engine</span></div>
+</div>
 
-    const close = document.createElement('span');
-    close.className = 'close';
-    close.textContent = '×';
-    close.onclick = (e) => {
-      e.stopPropagation();
-      delete files[filename];
-      if (filename === currentFile) {
-        const remaining = Object.keys(files);
-        if (remaining.length > 0) switchFile(remaining[0]);
-        else editor.setValue('');
-      }
-      tab.remove();
+
+
+    <div id="overlay"></div>
+
+  <div id="container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+  <script>
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+
+    let editor, currentTab = 'Tab1';
+    const tabContents = {
+      'Tab1': '-- Lua code here\nprint("Hello World   (("made by duckey"))',
+      'Tab2': '-- Tab 2\nprint("(Hello World)")'
     };
-    tab.appendChild(close);
 
-    tab.onclick = () => switchFile(filename);
-    tabsContainer.insertBefore(tab, addTabBtn);
-  }
+    const tabBar = document.getElementById('tabBar');
+    const addTabBtn = document.getElementById('addTabBtn');
 
-  function switchFile(filename) {
-    currentFile = filename;
-    const lang = filename.endsWith('.js') ? 'javascript' :
-                 filename.endsWith('.css') ? 'css' :
-                 'plaintext';
-    editor.setModel(monaco.editor.createModel(files[filename], lang));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelector(`.tab[data-file="${filename}"]`)?.classList.add('active');
-  }
+    function createTab(name) {
+      const tab = document.createElement('div');
+      tab.className = 'tab';
+      tab.innerText = name;
+      tab.id = `tab-${name}`;
+      tab.onclick = () => switchTab(name);
 
-  const addTabBtn = document.createElement('div');
-  addTabBtn.id = 'addTab';
-  addTabBtn.textContent = '+';
-  addTabBtn.onclick = () => {
-    const name = prompt('Enter new file name:', 'newfile.js');
-    if (name && !files[name]) {
-      files[name] = '';
-      createTab(name);
-      switchFile(name);
+      // Close button
+      const closeBtn = document.createElement('span');
+      closeBtn.className = 'close-btn';
+      closeBtn.innerText = '×';
+      closeBtn.title = `Close ${name}`;
+      closeBtn.onclick = e => {
+        e.stopPropagation();
+        closeTab(name);
+      };
+
+      tab.appendChild(closeBtn);
+      tabBar.insertBefore(tab, addTabBtn);
     }
-  };
-  tabsContainer.appendChild(addTabBtn);
 
-  Object.keys(files).forEach(createTab);
-  switchFile(currentFile);
+    function switchTab(name) {
+      if (name === currentTab) return;
+      if (editor) tabContents[currentTab] = editor.getValue();
+      currentTab = name;
+      if (editor) editor.setValue(tabContents[name] || '');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      const newActive = document.getElementById(`tab-${name}`);
+      if (newActive) newActive.classList.add('active');
+    }
 
-});
-</script>
+    function closeTab(name) {
+      if (!(name in tabContents)) return;
+      delete tabContents[name];
+      const tab = document.getElementById(`tab-${name}`);
+      if (tab) tab.remove();
 
+      if (currentTab === name) {
+        // Switch to another tab if available
+        const remainingTabs = Object.keys(tabContents);
+        if (remainingTabs.length > 0) {
+          switchTab(remainingTabs[0]);
+        } else {
+          // No tabs left, create a new one
+          createNewTab();
+        }
+      }
+    }
+
+    function createNewTab() {
+      let index = 1;
+      while (tabContents[`Tab${index}`]) index++;
+      const name = `Tab${index}`;
+      tabContents[name] = '-- New Lua tab';
+      createTab(name);
+      switchTab(name);
+    }
+
+    addTabBtn.onclick = createNewTab;
+
+    function initTabs() {
+      Object.keys(tabContents).forEach(createTab);
+      switchTab(currentTab);
+    }
+
+    // Monaco editor init
+    require(['vs/editor/editor.main'], function () {
+      editor = monaco.editor.create(document.getElementById('container'), {
+        value: tabContents[currentTab],
+        language: 'lua',
+        theme: 'vs-dark',
+        fontSize: 16,
+        fontFamily: "'Fira Code', monospace",
+        automaticLayout: true,
+        minimap: { enabled: false },
+        scrollbar: { vertical: 'auto', horizontal: 'auto' },
+        overviewRulerLanes: 0,
+        lineNumbersMinChars: 3,
+        lineDecorationsWidth: 4,
+        renderLineHighlight: 'all',
+        cursorBlinking: 'phase',
+        smoothScrolling: true,
+        renderIndentGuides: true,
+        folding: true,
+        // Make editor background transparent
+        extraEditorClassName: 'transparent-editor',
+      });
+
+      initTabs();
+      setBackground(bgSelector.value);
+      setEditorColor(colorSelector.value);
+
+      // Update editor color on color change
+      colorSelector.addEventListener('input', () => {
+        setEditorColor(colorSelector.value);
+      });
+
+      // Background change
+      bgSelector.addEventListener('change', () => {
+        setBackground(bgSelector.value);
+      });
+
+      // Color mode toggle
+      colorModeToggle.addEventListener('click', () => {
+        colorMode = colorMode === 'background' ? 'foreground' : 'background';
+        colorModeToggle.textContent = `Color Mode: ${colorMode.charAt(0).toUpperCase() + colorMode.slice(1)}`;
+        updateColors();
+      });
+
+      // Initialize animation
+      animate();
+
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    });
+
+    // Background animation code
+
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const bgSelector = document.getElementById('bgSelector');
+    const colorSelector = document.getElementById('colorSelector');
+    const colorModeToggle = document.getElementById('colorModeToggle');
+
+    let colorMode = 'background'; // 'background' or 'foreground'
+    let currentBg = 'advanced';
+    let editorColor = colorSelector.value;
+
+    function setEditorColor(hexColor) {
+      editorColor = hexColor;
+      updateColors();
+    }
+
+    function updateColors() {
+      if (colorMode === 'background') {
+        document.body.style.backgroundColor = editorColor;
+        document.documentElement.style.setProperty('--tab-active-color', editorColor);
+        if (editor) editor.updateOptions({ theme: createTheme(editorColor, 'background') });
+      } else {
+        document.body.style.backgroundColor = '#1E1E1E';
+        document.documentElement.style.setProperty('--tab-active-color', editorColor);
+        if (editor) editor.updateOptions({ theme: createTheme(editorColor, 'foreground') });
+      }
+    }
+
+    function createTheme(color, mode) {
+      const base = mode === 'background' ? '#1E1E1E' : '#000000';
+      return {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+          { token: '', foreground: color.replace('#', '') },
+          { token: 'keyword', foreground: color.replace('#', ''), fontStyle: 'bold' },
+          { token: 'comment', foreground: '888888', fontStyle: 'italic' },
+          { token: 'string', foreground: 'D69D85' },
+          { token: 'number', foreground: 'B5CEA8' },
+        ],
+        colors: {
+          'editor.background': mode === 'background' ? base : '#1E1E1E00',
+          'editor.foreground': color,
+          'editorCursor.foreground': color,
+          'editorLineNumber.foreground': '555555',
+          'editorLineNumber.activeForeground': color,
+          'editor.selectionBackground': color + '44',
+          'editor.inactiveSelectionBackground': color + '22',
+          'editorIndentGuide.background': '404040',
+          'editorIndentGuide.activeBackground': color,
+        }
+      };
+    }
+
+    // --- Background animations ---
+
+    // Particle utilities
+    class Particle {
+      constructor(x, y, vx, vy, radius, color, alpha=1) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.radius = radius;
+        this.color = color;
+        this.alpha = alpha;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bounce
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 10;
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Multiple backgrounds defined here
+    // Each returns a function to animate the frame
+
+    // 1. Nebula Glow (advanced)
+    function nebulaGlow() {
+      const particles = [];
+      for(let i=0; i<150; i++) {
+        particles.push(new Particle(
+          Math.random()*canvas.width,
+          Math.random()*canvas.height,
+          (Math.random()-0.5)*0.3,
+          (Math.random()-0.5)*0.3,
+          1 + Math.random()*2,
+          `hsl(${Math.random()*360}, 60%, 70%)`,
+          0.4 + Math.random()*0.6
+        ));
+      }
+
+      return function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(20,20,30,0.3)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+      };
+    }
+
+    // 2. Dots & Lines Enhanced
+    function dotsLinesEnhanced() {
+      const points = [];
+      const maxDist = 150;
+      for(let i=0; i<80; i++) {
+        points.push({
+          x: Math.random()*canvas.width,
+          y: Math.random()*canvas.height,
+          vx: (Math.random()-0.5)*1,
+          vy: (Math.random()-0.5)*1
+        });
+      }
+
+      return function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(10,10,10,0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for(let i=0; i<points.length; i++) {
+          const p = points[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+          ctx.beginPath();
+          ctx.fillStyle = '#AAA';
+          ctx.arc(p.x, p.y, 3, 0, 2*Math.PI);
+          ctx.fill();
+
+          // Connect close points
+          for(let j=i+1; j<points.length; j++) {
+            const p2 = points[j];
+            const dist = Math.hypot(p.x-p2.x, p.y-p2.y);
+            if(dist < maxDist) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(170,170,170,${1 - dist/maxDist})`;
+              ctx.lineWidth = 1;
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.stroke();
+            }
+          }
+        }
+      };
+    }
+
+    // 3. Matrix Rain
+    function matrixRain() {
+      const fontSize = 18;
+      const columns = Math.floor(canvas.width / fontSize);
+      const drops = new Array(columns).fill(1);
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+
+      return function() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#0F0';
+        ctx.font = `${fontSize}px monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = chars.charAt(Math.floor(Math.random() * chars.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      };
+    }
+
+    // 4. Sine Wave Glow
+    function sineWaveGlow() {
+      const waves = [];
+      const waveCount = 5;
+      for(let i=0; i<waveCount; i++) {
+        waves.push({
+          amplitude: 20 + 10*i,
+          frequency: 0.01 + 0.005*i,
+          phase: Math.random()*Math.PI*2,
+          speed: 0.02 + 0.01*i,
+          yOffset: canvas.height/2 + (i - waveCount/2)*30,
+          color: `hsl(${i*60}, 70%, 60%)`
+        });
+      }
+
+      let time = 0;
+
+      return function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(10,10,10,0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        waves.forEach(wave => {
+          ctx.beginPath();
+          ctx.strokeStyle = wave.color;
+          ctx.lineWidth = 2;
+          ctx.shadowColor = wave.color;
+          ctx.shadowBlur = 10;
+
+          for(let x=0; x<canvas.width; x++) {
+            const y = wave.yOffset + wave.amplitude * Math.sin(wave.frequency * x + wave.phase + time * wave.speed);
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+
+          ctx.stroke();
+        });
+
+        time += 1;
+      };
+    }
+
+    // 5. Twinkling Stars
+    function twinklingStars() {
+      const stars = [];
+      for(let i=0; i<100; i++) {
+        stars.push({
+          x: Math.random()*canvas.width,
+          y: Math.random()*canvas.height,
+          radius: Math.random()*1.5,
+          alpha: Math.random(),
+          alphaChange: (Math.random()*0.02) + 0.005,
+          color: 'white'
+        });
+      }
+
+      return function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#000011';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        stars.forEach(star => {
+          star.alpha += star.alphaChange;
+          if (star.alpha >= 1 || star.alpha <= 0) star.alphaChange *= -1;
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
+          ctx.shadowColor = `rgba(255,255,255,${star.alpha})`;
+          ctx.shadowBlur = 6;
+          ctx.arc(star.x, star.y, star.radius, 0, 2*Math.PI);
+          ctx.fill();
+        });
+      };
+    }
+
+    // 6. Purple Particles
+    function purpleParticles() {
+      const particles = [];
+      for(let i=0; i<120; i++) {
+        particles.push(new Particle(
+          Math.random()*canvas.width,
+          Math.random()*canvas.height,
+          (Math.random()-0.5)*0.5,
+          (Math.random()-0.5)*0.5,
+          1 + Math.random()*1.5,
+          'purple',
+          0.5 + Math.random()*0.5
+        ));
+      }
+
+      return function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(15,0,30,0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+      };
+    }
+
+    // 7. Expanding Circles
+    function expandingCircles() {
+      const circles = [];
+      for(let i=0; i<30; i++) {
+        circles.push({
+          x: Math.random()*canvas.width,
+          y: Math.random()*canvas.height,
+          radius: Math.random()*20 + 10,
+          maxRadius: 60 + Math.random()*40,
+          speed: 0.5 + Math.random()*0.5,
+          alpha: 0.4,
+          growing: true,
+          color: `hsl(${Math.random()*360}, 60%, 70%)`
+        });
+      }
+
+      return function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(20,20,25,0.3)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        circles.forEach(c => {
+          if(c.growing) {
+            c.radius += c.speed;
+            c.alpha -= 0.007;
+            if(c.radius >= c.maxRadius) {
+              c.growing = false;
+              c.alpha = 0.4;
+            }
+          } else {
+            c.radius -= c.speed;
+            c.alpha += 0.007;
+            if(c.radius <= 10) {
+              c.growing = true;
+              c.radius = 10;
+            }
+          }
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba( ${parseHSL(c.color).join(',')},${c.alpha})`;
+          ctx.lineWidth = 2;
+          ctx.shadowColor = c.color;
+          ctx.shadowBlur = 10;
+          ctx.arc(c.x, c.y, c.radius, 0, 2*Math.PI);
+          ctx.stroke();
+        });
+      };
+    }
+
+    // Helper: parse HSL string into array [h, s%, l%]
+    function parseHSL(hsl) {
+      // hsl(360, 60%, 70%) -> [360, 60%, 70%]
+      const m = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+      if (!m) return [0, 0, 0];
+      return [m[1], m[2]+'%', m[3]+'%'];
+    }
+
+    let animateFunc = null;
+
+    function setBackground(name) {
+      currentBg = name;
+      switch (name) {
+        case 'advanced':
+          animateFunc = nebulaGlow();
+          break;
+        case 'dotsLines':
+          animateFunc = dotsLinesEnhanced();
+          break;
+        case 'matrix':
+          animateFunc = matrixRain();
+          break;
+        case 'wave':
+          animateFunc = sineWaveGlow();
+          break;
+        case 'starsTwinkle':
+          animateFunc = twinklingStars();
+          break;
+        case 'purpleParticles':
+          animateFunc = purpleParticles();
+          break;
+        case 'expandingCircles':
+          animateFunc = expandingCircles();
+          break;
+        default:
+          animateFunc = nebulaGlow();
+      }
+    }
+
+    function animate() {
+      if (animateFunc) animateFunc();
+      requestAnimationFrame(animate);
+    }
+
+      setTimeout(() => {
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+      loadingScreen.style.transition = 'opacity 0.6s ease';
+      loadingScreen.style.opacity = '0';
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, 600); // match transition duration
+    }
+  }, 3000);
+   const customBtn = document.getElementById('customBtn');
+    const fileInput = document.getElementById('bgUpload');
+
+    customBtn.addEventListener('click', () => {
+      fileInput.click(); // open file picker
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Please upload a valid image file.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.body.style.backgroundImage = `url('${event.target.result}')`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+      const settingsBtn = document.getElementById('customBtn');
+  const settingsPage = document.getElementById('settingsPage');
+
+  settingsBtn.addEventListener('click', () => {
+    if (settingsPage.style.display === 'block') {
+      settingsPage.style.display = 'none';
+    } else {
+      settingsPage.style.display = 'block';
+      settingsPage.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+
+  
+
+
+  </script>
 </body>
 </html>
