@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ronix Monaco Editor with Sleek Tabs</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fira Code', monospace;
+      background: #282A36;
+      color: #f8f8f2;
+    }
+
+    #tabs {
+      display: flex;
+      align-items: center;
+      padding: 5px 10px;
+      background: #21222C;
+      border-bottom: 1px solid #44475A;
+      overflow-x: auto;
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      padding: 6px 14px;
+      margin-right: 5px;
+      background: #33344A;
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      background: #44475A;
+      font-weight: bold;
+    }
+
+    .tab:hover {
+      background: #3B3C4E;
+    }
+
+    .tab .close {
+      margin-left: 8px;
+      font-weight: bold;
+      color: #33344A; /* matches tab background */
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .tab .close:hover {
+      color: #ff5555; /* subtle red on hover */
+    }
+
+    #addTab {
+      padding: 6px 12px;
+      margin-left: auto;
+      background: #282A36; /* same as editor background */
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, color 0.2s;
+      color: #f8f8f2;
+    }
+
+    #addTab:hover {
+      background: #3B3C4E;
+    }
+
+    #editor {
+      width: 100%;
+      height: calc(100vh - 50px);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
+</head>
+<body>
+
+<div id="tabs"></div>
+<div id="editor"></div>
+
+<script>
+require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }});
+require(['vs/editor/editor.main'], function () {
+
+  monaco.editor.defineTheme('ronix', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: 'keyword', foreground: 'FF79C6', fontStyle: 'bold' },
+      { token: 'comment', foreground: '6272A4', fontStyle: 'italic' },
+      { token: 'string', foreground: 'F1FA8C' },
+      { token: 'number', foreground: 'BD93F9' },
+      { token: 'identifier', foreground: '50FA7B' }
+    ],
+    colors: {
+      'editor.background': '#282A36',
+      'editorLineNumber.foreground': '#6272A4',
+      'editorCursor.foreground': '#FF79C6',
+      'editor.selectionBackground': '#44475A'
+    }
+  });
+
+  let files = {
+    'main.js': "console.log('Hello from main.js');",
+    'utils.js': "export function add(a, b) { return a + b; }"
+  };
+  let currentFile = Object.keys(files)[0];
+
+  const tabsContainer = document.getElementById('tabs');
+
+  const editor = monaco.editor.create(document.getElementById('editor'), {
+    value: files[currentFile],
+    language: 'javascript',
+    theme: 'ronix',
+    fontFamily: 'Fira Code, monospace',
+    fontSize: 14,
+    minimap: { enabled: false },
+    lineNumbers: 'on',
+    roundedSelection: true,
+    scrollBeyondLastLine: false,
+    automaticLayout: true
+  });
+
+  function createTab(filename) {
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    tab.dataset.file = filename;
+    tab.textContent = filename;
+
+    const close = document.createElement('span');
+    close.className = 'close';
+    close.textContent = '×';
+    close.onclick = (e) => {
+      e.stopPropagation();
+      delete files[filename];
+      if (filename === currentFile) {
+        const remaining = Object.keys(files);
+        if (remaining.length > 0) switchFile(remaining[0]);
+        else editor.setValue('');
+      }
+      tab.remove();
+    };
+    tab.appendChild(close);
+
+    tab.onclick = () => switchFile(filename);
+    tabsContainer.insertBefore(tab, addTabBtn);
+  }
+
+  function switchFile(filename) {
+    currentFile = filename;
+    const lang = filename.endsWith('.js') ? 'javascript' :
+                 filename.endsWith('.css') ? 'css' :
+                 'plaintext';
+    editor.setModel(monaco.editor.createModel(files[filename], lang));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.tab[data-file="${filename}"]`)?.classList.add('active');
+  }
+
+  const addTabBtn = document.createElement('div');
+  addTabBtn.id = 'addTab';
+  addTabBtn.textContent = '+';
+  addTabBtn.onclick = () => {
+    const name = prompt('Enter new file name:', 'newfile.js');
+    if (name && !files[name]) {
+      files[name] = '';
+      createTab(name);
+      switchFile(name);
+    }
+  };
+  tabsContainer.appendChild(addTabBtn);
+
+  Object.keys(files).forEach(createTab);
+  switchFile(currentFile);
+
+});
+</script>
+
+</body>
+</html>
